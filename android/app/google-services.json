@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "738440281572",
+    "project_id": "interport-02",
+    "storage_bucket": "interport-02.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:738440281572:android:5bf845b90a59e066685bf1",
+        "android_client_info": {
+          "package_name": "com.example.interport_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "738440281572-5851t9s234e50eomo3l2p5hr4t6dldqj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.interport_app",
+            "certificate_hash": "93ee4e4fcae00e0637dca43561a304823b2bc1e1"
+          }
+        },
+        {
+          "client_id": "738440281572-mubmdtpvmkjlrehr1l51eh489qusct7t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDSn7FoddVZWmaUKX_BCH1zjpbPnYVRa_4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "738440281572-mubmdtpvmkjlrehr1l51eh489qusct7t.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
