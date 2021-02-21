@@ -41,39 +41,29 @@ dependencies:
   firebase_auth: ^0.18.1+2
   firebase_core: "^0.5.0+1"
   cloud_firestore: ^0.14.0+2
-  firebase_storage: ^5.2.0
-  multilevel_drawer: ^1.0.3
-  path_provider: ^1.6.21
-  curved_navigation_bar: ^0.3.4
-  animated_card: ^1.0.0+8
-  flutter_api_services: ^0.0.1
-  dismissible_expanded_list: ^0.3.1
-  google_fonts: ^1.1.1
-  button_picker: ^0.1.6
-  flutter_number_picker: ^0.0.8
-  http: ^0.12.2
-  firebase_image: ^0.3.0
-  google_maps_flutter: ^1.0.6
-  geolocator: ^6.1.13  
+  firebase_storage: ^5.2.0  
+  path_provider: ^1.6.21    
+  flutter_api_services: ^0.0.1  
+  google_fonts: ^1.1.1   
+  http: ^0.12.2 
   path: ^1.7.0
-  firebase_analytics: ^6.3.0
-  image_picker: ^0.6.7+17
-  image_ink_well: ^0.1.0
-  lit_firebase_auth: ^0.3.0
-  url_launcher: ^5.7.10
-  social_signin_buttons: ^0.0.2
-  brasil_fields: ^0.6.0
+  firebase_analytics: ^6.3.0  
+  image_ink_well: ^0.1.0  
+  url_launcher: ^5.7.10  
   intl: ^0.16.1
   expansion_card: ^0.1.0
-  get_it: ^1.0.3+2
-  flutter_phone_direct_caller: ^1.0.1
+  get_it: ^1.0.3+2  
   font_awesome_flutter: ^8.8.1
   animations: ^1.1.2
   flutter_modular: ^2.0.1
+  json_serializable: ^3.5.1
+  extended_masked_text: ^1.1.0  
+  cep: ^1.0.4
+  circular_check_box: ^1.0.4
+  dropdown_date_picker: ^0.1.1+2
   flutter:
     sdk: flutter
-  flutter_localizations:
-    sdk: flutter
+ 
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -110,6 +100,7 @@ flutter:
     - images/logo.png
     - images/avatar.png
     - images/noimage.jpg
+    - images/lp_image.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

@@ -8,10 +8,10 @@ class AdminController = _AdminControllerBase with _$AdminController;
 
 abstract class _AdminControllerBase with Store {
   @observable
-  int value = 0;
+  int currentIndex = 0;
 
   @action
-  void increment() {
-    value++;
+  void upDateCurrentIndex(int index) {
+    currentIndex = index;
   }
 }

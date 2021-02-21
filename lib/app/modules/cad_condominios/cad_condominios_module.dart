@@ -1,9 +1,11 @@
+import 'package:flutter/src/widgets/framework.dart';
+
 import 'cad_condominios_controller.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 
 import 'cad_condominios_page.dart';
 
-class CadCondominiosModule extends ChildModule {
+class CadCondominiosModule extends WidgetModule {
   @override
   List<Bind> get binds => [
         $CadCondominiosController,
@@ -16,4 +18,8 @@ class CadCondominiosModule extends ChildModule {
       ];
 
   static Inject get to => Inject<CadCondominiosModule>.of();
+
+  @override
+  // TODO: implement view
+  Widget get view => CadCondominiosPage();
 }

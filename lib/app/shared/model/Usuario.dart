@@ -12,7 +12,6 @@ class Usuario {
   String _tipoUsuario;
   String _urlImage;
   bool _master;
-  DateTime _lastMessageTime;
 
   Usuario();
 
@@ -27,7 +26,6 @@ class Usuario {
     this.tipoUsuario = documentSnapshot['tipoUsuario'];
     this.urlImage = documentSnapshot['urlImage'];
     this.master = documentSnapshot['master'];
-    this.lastMessageTime = documentSnapshot['lastMessageTime'];
   }
 
   Usuario.gerarID() {
@@ -48,7 +46,6 @@ class Usuario {
       "tipoUsuario": this.tipoUsuario,
       "urlImage": this.urlImage,
       "master": this.master,
-      "lastMessageTime": this.lastMessageTime,
     };
     return map;
   }
@@ -106,10 +103,5 @@ class Usuario {
   bool get master => _master;
   set master(bool value) {
     _master = value;
-  }
-
-  DateTime get lastMessageTime => _lastMessageTime;
-  set lastMessageTime(DateTime value) {
-    _lastMessageTime = value;
   }
 }

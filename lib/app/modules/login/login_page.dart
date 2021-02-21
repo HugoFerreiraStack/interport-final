@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:social_signin_buttons/social_signin_buttons.dart';
 import 'login_controller.dart';
 
 class LoginPage extends StatefulWidget {
@@ -33,36 +32,21 @@ class _LoginPageState extends ModularState<LoginPage, LoginController> {
 
   @override
   void initState() {
-    _verificarUsuarioLogado(tipoUsuarioLogado);
-    _direcionarUsuarioLogado();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      _verificarUsuarioLogado();
+    });
     super.initState();
   }
 
-  _direcionarUsuarioLogado() async {
-    await _verificarUsuarioLogado(tipoUsuarioLogado);
-    if (tipoUsuarioLogado == "Morador") {
-      Modular.to.pushReplacementNamed("/start");
-    } else if (tipoUsuarioLogado == "Admin") {
-      Modular.to.pushReplacementNamed("/admin");
-    } else if (tipoUsuarioLogado == "Sindico") {
-      Modular.to.pushReplacementNamed("start");
+  _verificarUsuarioLogado() async {
+    FirebaseAuth auth = FirebaseAuth.instance;
+    User user = auth.currentUser;
+    if (user != null) {
+      await Modular.to.pushReplacementNamed("/cad_condominio");
     }
   }
 
-  _verificarUsuarioLogado(String tipoUsuario) async {
-    FirebaseAuth auth = FirebaseAuth.instance;
-    User user = await auth.currentUser;
-
-    FirebaseFirestore db = FirebaseFirestore.instance;
-    DocumentSnapshot snapshot =
-        await db.collection("Usuarios").doc(user.uid).get();
-    String tipo = snapshot.get("tipoUsuario");
-    setState(() {
-      tipoUsuarioLogado = tipo;
-    });
-  }
-
-  _validarCampos() {
+  _validarCampos() async {
     email = _controllerEmail.text;
     senha = _controllerSenha.text;
 
@@ -70,8 +54,10 @@ class _LoginPageState extends ModularState<LoginPage, LoginController> {
       if (senha.isNotEmpty && senha.length > 5) {
         _auth
             .signInWithEmailAndPassword(email: email, password: senha)
-            .then((firebaseUser) {
-          _verificarUsuarioLogado(tipoUsuarioLogado);
+            .then((firebaseUser) async {
+          await Modular.to.pushReplacementNamed("/admin");
+          //_verificarUsuarioLogado(tipoUsuarioLogado);
+          /*
           if (tipoUsuarioLogado == tipoUsuarioSelecionado) {
             if (tipoUsuarioLogado == "Morador") {
               Modular.to.pushReplacementNamed("/start");
@@ -80,7 +66,7 @@ class _LoginPageState extends ModularState<LoginPage, LoginController> {
             } else if (tipoUsuarioLogado == "Sindico") {
               Modular.to.pushReplacementNamed("start");
             }
-          }
+          }*/
         }).catchError((onError) {
           setState(() {
             _mensagemErro = "Erro ao Fazer Login";
@@ -101,172 +87,140 @@ class _LoginPageState extends ModularState<LoginPage, LoginController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Color(0xFF1E1C3F),
-        title: Text(widget.title),
-      ),
-      body: Container(
-        padding: EdgeInsets.all(16),
-        child: SingleChildScrollView(
-          child: Form(
-            key: formKey,
-            child: Column(
-              children: <Widget>[
-                SizedBox(
-                  height: 20,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                      "ENTRAR COM CONTA",
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      body: Center(
+        child: Container(
+          width: MediaQuery.of(context).size.width / 3,
+          child: SingleChildScrollView(
+            child: Form(
+              key: formKey,
+              child: Column(
+                children: <Widget>[
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Container(
+                    child: Image.asset(
+                      "images/logo.png",
+                      fit: BoxFit.contain,
                     ),
-                  ],
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                TextField(
-                  controller: _controllerEmail,
-                  keyboardType: TextInputType.emailAddress,
-                  onChanged: (value) {
-                    setState(() {
-                      email = value;
-                    });
-                  },
-                  decoration: InputDecoration(
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  TextField(
+                    controller: _controllerEmail,
+                    keyboardType: TextInputType.emailAddress,
+                    onChanged: (value) {
+                      setState(() {
+                        email = value;
+                      });
+                    },
+                    decoration: InputDecoration(
+                        prefixIcon: Icon(
+                          Icons.email,
+                          color: Color(0xFF1E1C3F),
+                        ),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(6)),
+                        labelText: 'E-mail'),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  TextField(
+                    controller: _controllerSenha,
+                    keyboardType: TextInputType.text,
+                    obscureText: true,
+                    onChanged: (value) {
+                      setState(() {
+                        senha = value;
+                      });
+                    },
+                    decoration: InputDecoration(
                       prefixIcon: Icon(
-                        Icons.email,
-                        color: Colors.black,
+                        Icons.lock,
+                        color: Color(0xFF1E1C3F),
                       ),
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(6)),
-                      labelText: 'E-mail'),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                TextField(
-                  controller: _controllerSenha,
-                  keyboardType: TextInputType.text,
-                  obscureText: true,
-                  onChanged: (value) {
-                    setState(() {
-                      senha = value;
-                    });
-                  },
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(
-                      Icons.lock,
-                      color: Colors.black,
+                      labelText: 'Senha',
                     ),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(6)),
-                    labelText: 'Senha',
                   ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    DropdownButton(
-                      items: _tipoUsuario
-                          .map((value) => DropdownMenuItem(
-                                child: Text(
-                                  value,
-                                ),
-                                value: value,
-                              ))
-                          .toList(),
-                      onChanged: (_tipoUsuarioSelecionado) {
-                        setState(() {
-                          tipoUsuarioSelecionado = _tipoUsuarioSelecionado;
-                        });
-                      },
-                      value: tipoUsuarioSelecionado,
-                      hint: Text("Selecione o Tipo de Usuario"),
-                    )
-                  ],
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                RaisedButton(
-                  color: Color(0xFF1E1C3F),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5)),
-                  padding:
-                      EdgeInsets.only(left: 80, right: 80, top: 16, bottom: 16),
-                  onPressed: () async {
-                    await _validarCampos();
-                  },
-                  child: Text(
-                    "CONTINUAR",
-                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  SizedBox(
+                    height: 20,
                   ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    FlatButton(
-                      onPressed: () {},
-                      child: Text(
-                        "Esqueceu a Senha?",
-                        style: TextStyle(color: Colors.cyan, fontSize: 15),
-                      ),
+                  /*
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      DropdownButton(
+                        items: _tipoUsuario
+                            .map((value) => DropdownMenuItem(
+                                  child: Text(
+                                    value,
+                                  ),
+                                  value: value,
+                                ))
+                            .toList(),
+                        onChanged: (_tipoUsuarioSelecionado) {
+                          setState(() {
+                            tipoUsuarioSelecionado = _tipoUsuarioSelecionado;
+                          });
+                        },
+                        value: tipoUsuarioSelecionado,
+                        hint: Text("Selecione o Tipo de Usuario"),
+                      )
+                    ],
+                  ),*/
+                  SizedBox(
+                    height: 20,
+                  ),
+                  RaisedButton(
+                    color: Color(0xFF1E1C3F),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5)),
+                    padding: EdgeInsets.only(
+                        left: 80, right: 80, top: 16, bottom: 16),
+                    onPressed: () async {
+                      await _validarCampos();
+                    },
+                    child: Text(
+                      "CONTINUAR",
+                      style: TextStyle(color: Colors.white, fontSize: 20),
                     ),
-                  ],
-                ),
-                SizedBox(
-                  height: 5,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Container(
-                      margin: EdgeInsets.only(bottom: 20),
-                      child: Text(
-                        'Ou entre com',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w400,
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      FlatButton(
+                        onPressed: () {},
+                        child: Text(
+                          "Esqueceu a Senha?",
+                          style: TextStyle(color: Colors.cyan, fontSize: 15),
                         ),
                       ),
-                    )
-                  ],
-                ),
-                SizedBox(
-                  height: 5,
-                ),
-                SignInButton(
-                  Buttons.Facebook,
-                  onPressed: () {},
-                  text: "Entrar com Facebook",
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                SignInButton(
-                  Buttons.Google,
-                  onPressed: () {},
-                  text: "Entrar com Google",
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Padding(
-                        padding: EdgeInsets.only(top: 40),
-                        child: Text(_mensagemErro)),
-                  ],
-                )
-              ],
+                    ],
+                  ),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Padding(
+                          padding: EdgeInsets.only(top: 40),
+                          child: Text(_mensagemErro)),
+                    ],
+                  )
+                ],
+              ),
             ),
           ),
         ),

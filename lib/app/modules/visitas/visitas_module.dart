@@ -1,11 +1,9 @@
-import 'package:flutter/src/widgets/framework.dart';
-
 import 'visitas_controller.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 
 import 'visitas_page.dart';
 
-class VisitasModule extends WidgetModule {
+class VisitasModule extends ChildModule {
   @override
   List<Bind> get binds => [
         $VisitasController,
@@ -17,8 +15,4 @@ class VisitasModule extends WidgetModule {
       ];
 
   static Inject get to => Inject<VisitasModule>.of();
-
-  @override
-  // TODO: implement view
-  Widget get view => VisitasPage();
 }

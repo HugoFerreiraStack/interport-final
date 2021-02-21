@@ -1,13 +1,14 @@
-import 'dart:io';
-
+import 'dart:html';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_ink_well/image_ink_well.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:interport_app/app/shared/model/banner.dart';
+import 'package:interport_app/app/shared/nav_bar.dart';
+import 'package:interport_app/app/shared/pages/landing_banner_page.dart';
 import 'banner_controller.dart';
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:firebase/firebase.dart' as fb;
 
 class BannerPage extends StatefulWidget {
   final String title;
@@ -20,166 +21,211 @@ class BannerPage extends StatefulWidget {
 class _BannerPageState extends ModularState<BannerPage, BannerController> {
   //use 'controller' variable to access controller
 
-  File _image;
-  final picker = ImagePicker();
-  final ImagePicker _picker = ImagePicker();
+  File imageFile;
+  fb.UploadTask _uploadTask;
   var condominioSelecionado;
   String _condomino;
   String _urlImage;
 
-  _openGalery(BuildContext context) async {
-    final pickedFile = await picker.getImage(source: ImageSource.gallery);
+  uploadImage() async {
+    // HTML input element
+    InputElement uploadInput = FileUploadInputElement();
+    uploadInput.click();
 
+    uploadInput.onChange.listen(
+      (changeEvent) {
+        final file = uploadInput.files.first;
+        final reader = FileReader();
+
+        reader.readAsDataUrl(file);
+
+        reader.onLoadEnd.listen(
+          // After file finiesh reading and loading, it will be uploaded to firebase storage
+          (loadEndEvent) async {
+            uploadToFirebase(file);
+          },
+        );
+      },
+    );
+  }
+
+  uploadToFirebase(File imageFile) async {
     setState(() {
-      if (pickedFile != null) {
-        _image = File(pickedFile.path);
-      } else {
-        print('No image selected.');
-      }
+      _uploadTask = fb
+          .storage()
+          .refFromURL('gs://interport-02.appspot.com/')
+          .child(_condomino)
+          .child('/banner.png')
+          .put(imageFile);
     });
-
-    Navigator.of(context).pop();
+    Future.delayed(const Duration(milliseconds: 2000), () {
+      printUrl();
+    });
   }
 
-  _uploadImage() async {
-    firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance
-        .ref()
+  printUrl() async {
+    fb.StorageReference ref = fb
+        .storage()
+        .refFromURL('gs://interport-02.appspot.com/')
         .child(_condomino)
-        .child('/banner.jpg');
-
-    final UploadTask task = ref.putFile(_image);
-    _urlImage = await task.snapshot.ref.getDownloadURL();
+        .child('/banner.png');
+    String url = (await ref.getDownloadURL()).toString();
+    setState(() {
+      _urlImage = url;
+    });
   }
 
-  Future<void> _showChoiceDialog(BuildContext context) {
-    return showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text("Selecionar imagem"),
-            content: SingleChildScrollView(
-              child: ListBody(
-                children: <Widget>[
-                  GestureDetector(
-                    child: Text("Galeria"),
-                    onTap: () {
-                      _openGalery(context);
-                    },
-                  ),
-                ],
-              ),
-            ),
-          );
-        });
+  _postBanner() {
+    if (_urlImage != null) {
+      BannerPost bannerPost = BannerPost(
+          url: _urlImage, condominio: condominioSelecionado.toString());
+      FirebaseFirestore db = FirebaseFirestore.instance;
+
+      db
+          .collection("Banner Informativo")
+          .doc(condominioSelecionado.toString())
+          .set(bannerPost.toJson());
+      setState(() {
+        _urlImage = "";
+        condominioSelecionado = null;
+      });
+    }
   }
 
   Widget _bannerImage() {
-    if (_image == null) {
+    if (_urlImage == null) {
       return ImageInkWell(
-        height: 100,
-        width: 100,
+        height: 250,
+        width: 250,
         onPressed: () {
-          _showChoiceDialog(context);
+          uploadImage();
         },
         image: AssetImage("images/noimage.jpg"),
       );
     } else {
       return ImageInkWell(
-        fit: BoxFit.contain,
-        width: 250,
-        height: 250,
-        image: FileImage(_image),
+        image: NetworkImage(_urlImage),
         onPressed: () {
-          _showChoiceDialog(context);
+          uploadImage();
         },
+        height: 250,
+        width: 250,
+        fit: BoxFit.contain,
       );
     }
+  }
+
+  Widget _rigthSidePage() {
+    return Container(
+        width: MediaQuery.of(context).size.width / 3,
+        height: MediaQuery.of(context).size.height / 1.2,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+          ),
+          child: Column(
+            children: [
+              SizedBox(
+                height: 80,
+              ),
+              Text(
+                "Banner Informativo",
+                style: GoogleFonts.inter(
+                    fontSize: 25,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black),
+              ),
+              _bannerImage(),
+              SizedBox(
+                height: 20,
+              ),
+              StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection("Condominios")
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    Text("Carregando...");
+                  } else {
+                    List<DropdownMenuItem> condominiosItens = [];
+
+                    for (int i = 0; i < snapshot.data.docs.length; i++) {
+                      DocumentSnapshot snap = snapshot.data.docs[i];
+                      condominiosItens.add(DropdownMenuItem(
+                        child: Text(
+                          snap.get("nome"),
+                        ),
+                        value: "${snap.get("nome")}",
+                      ));
+                    }
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        DropdownButton(
+                          items: condominiosItens,
+                          onChanged: (condominiosValue) {
+                            setState(() {
+                              condominioSelecionado = condominiosValue;
+                              _condomino = condominioSelecionado;
+                            });
+                          },
+                          value: condominioSelecionado,
+                          hint: Text(
+                            "Selecione o Condominio",
+                            style: TextStyle(color: Colors.black),
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+                  return Container();
+                },
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              // ignore: deprecated_member_use
+              RaisedButton(
+                child: Text(
+                  "ENVIAR",
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
+                color: Color(0xFF1E1C3F),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5)),
+                padding:
+                    EdgeInsets.only(left: 32, right: 32, top: 16, bottom: 16),
+                onPressed: () {
+                  _postBanner();
+                },
+              )
+            ],
+          ),
+        ));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Color(0xFF1E1C3F),
-        title: Text(widget.title),
-      ),
-      body: ListView(
-        padding: EdgeInsets.all(16),
-        children: <Widget>[
-          SizedBox(
-            height: 20,
-          ),
-          SizedBox(
-            height: 30,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+              colors: [Color(0xFF1E1C3F), Colors.black]),
+        ),
+        child: SingleChildScrollView(
+          child: Column(
             children: <Widget>[
-              _bannerImage(),
+              Navbar(),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                    vertical: 30.0, horizontal: 60.0),
+                child: _rigthSidePage(),
+              )
             ],
           ),
-          SizedBox(
-            height: 20,
-          ),
-          StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection("Condominios")
-                .snapshots(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                Text("Carregando...");
-              } else {
-                List<DropdownMenuItem> condominiosItens = [];
-
-                for (int i = 0; i < snapshot.data.docs.length; i++) {
-                  DocumentSnapshot snap = snapshot.data.docs[i];
-                  condominiosItens.add(DropdownMenuItem(
-                    child: Text(
-                      snap.get("nome"),
-                    ),
-                    value: "${snap.get("nome")}",
-                  ));
-                }
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    DropdownButton(
-                      items: condominiosItens,
-                      onChanged: (condominiosValue) {
-                        setState(() {
-                          condominioSelecionado = condominiosValue;
-                          _condomino = condominioSelecionado;
-                        });
-                      },
-                      value: condominioSelecionado,
-                      hint: Text("Selecione o Condominio"),
-                    ),
-                  ],
-                );
-              }
-            },
-          ),
-          SizedBox(
-            height: 20,
-          ),
-          RaisedButton(
-            child: Text(
-              "ENVIAR",
-              style: TextStyle(color: Colors.white, fontSize: 20),
-            ),
-            color: Color(0xFF1E1C3F),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-            padding: EdgeInsets.only(left: 32, right: 32, top: 16, bottom: 16),
-            onPressed: () async {
-              if (_condomino != null) {
-                _uploadImage();
-              } else {
-                return "Por Favor, selecione um condominio";
-              }
-            },
-          )
-        ],
+        ),
       ),
     );
   }

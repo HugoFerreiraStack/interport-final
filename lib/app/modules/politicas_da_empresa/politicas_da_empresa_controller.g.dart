@@ -7,7 +7,6 @@ final $PoliticasDaEmpresaController = BindInject(
   singleton: true,
   lazy: true,
 );
-
 // **************************************************************************
 // StoreGenerator
 // **************************************************************************

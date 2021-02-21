@@ -71,7 +71,7 @@ class _SplashScreenPageState
                 Padding(
                   padding: EdgeInsets.only(top: 180, bottom: 5),
                   child: Text(
-                    " \u00a9 Interport 2020 ",
+                    " \u00a9 Interport 2021 ",
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 14,

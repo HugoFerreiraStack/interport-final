@@ -1,9 +1,11 @@
+import 'package:flutter/src/widgets/framework.dart';
+
 import 'banner_controller.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 
 import 'banner_page.dart';
 
-class BannerModule extends ChildModule {
+class BannerModule extends WidgetModule {
   @override
   List<Bind> get binds => [
         $BannerController,
@@ -15,4 +17,8 @@ class BannerModule extends ChildModule {
       ];
 
   static Inject get to => Inject<BannerModule>.of();
+
+  @override
+  // TODO: implement view
+  Widget get view => BannerPage();
 }

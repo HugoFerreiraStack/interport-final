@@ -1,11 +1,9 @@
 import 'dart:async';
 
-import 'package:button_picker/button_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
-import 'package:flutter_number_picker/flutter_number_picker.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:interport_app/app/shared/model/Eventos.dart';
 import 'package:intl/intl.dart';
