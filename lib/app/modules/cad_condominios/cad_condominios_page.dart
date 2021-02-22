@@ -1,4 +1,3 @@
-import 'package:circular_check_box/circular_check_box.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:extended_masked_text/extended_masked_text.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -29,7 +28,6 @@ class _CadCondominiosPageState
   TextEditingController _controllerBairro = TextEditingController();
   TextEditingController _controllerNumeroDeBlocos = TextEditingController();
   TextEditingController _controllerNumeroDeApts = TextEditingController();
-  final formKey = GlobalKey<FormState>();
   String nome;
   String cidade = "Cidade";
   String bairro = "Bairro";
@@ -52,42 +50,38 @@ class _CadCondominiosPageState
   }
 
   _cadastrarCondominio() {
-    if (nome.isNotEmpty) {
-      if (cidade != "Cidade") {
-        Condominio condominio = Condominio();
-        condominio.id = _condominio.id;
-        condominio.nome = nome;
-        condominio.cidade = cidade;
-        condominio.bairro = bairro;
-        condominio.rua = rua;
-        condominio.qtdApts = numeroDeApts;
-        condominio.qtdBlocos = numeroDeBlocos;
-        condominio.academia = _isAcademia;
-        condominio.churrasqueira = _isChurrasqueira;
-        condominio.piscina = _isPiscina;
-        condominio.quadraDeTenis = _isQuadraDeTenis;
-        condominio.quadraFutsal = _isQuadraFutsal;
-        condominio.salaDeJogos = _isSalaDeJogos;
-        condominio.salaoDeFestas = _isSalaoDeFestas;
-        FirebaseFirestore db = FirebaseFirestore.instance;
+    Condominio condominio = Condominio();
+    condominio.id = _condominio.id;
+    condominio.nome = nome;
+    condominio.cidade = cidade;
+    condominio.bairro = bairro;
+    condominio.rua = rua;
+    condominio.qtdApts = numeroDeApts;
+    condominio.qtdBlocos = numeroDeBlocos;
+    condominio.academia = _isAcademia;
+    condominio.churrasqueira = _isChurrasqueira;
+    condominio.piscina = _isPiscina;
+    condominio.quadraDeTenis = _isQuadraDeTenis;
+    condominio.quadraFutsal = _isQuadraFutsal;
+    condominio.salaDeJogos = _isSalaDeJogos;
+    condominio.salaoDeFestas = _isSalaoDeFestas;
+    FirebaseFirestore db = FirebaseFirestore.instance;
 
-        db
-            .collection("Condominios")
-            .doc(_condominio.id)
-            .set(condominio.toMap())
-            .catchError((err) => print('$err'));
-        setState(() {
-          cidade = "Cidade";
-          bairro = "Bairro";
-          rua = "Rua";
-          _condominio = Condominio.gerarID();
-        });
-        _controllerNome.clear();
-        _controllerCep.clear();
-        _controllerNumeroDeApts.clear();
-        _controllerNumeroDeBlocos.clear();
-      }
-    }
+    db
+        .collection("Condominios")
+        .doc(_condominio.id)
+        .set(condominio.toMap())
+        .catchError((err) => print('$err'));
+    setState(() {
+      cidade = "Cidade";
+      bairro = "Bairro";
+      rua = "Rua";
+      _condominio = Condominio.gerarID();
+    });
+    _controllerNome.clear();
+    _controllerCep.clear();
+    _controllerNumeroDeApts.clear();
+    _controllerNumeroDeBlocos.clear();
   }
 
   @override
@@ -326,134 +320,118 @@ class _CadCondominiosPageState
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Flexible(
-                    child: ListTile(
-                      leading: CircularCheckBox(
-                          value: _isChurrasqueira,
-                          checkColor: Colors.white,
-                          activeColor: Colors.green,
-                          inactiveColor: Colors.redAccent,
-                          disabledColor: Colors.grey,
-                          onChanged: (val) => setState(() {
-                                _isChurrasqueira = !_isChurrasqueira;
-                              })),
-                      title: Text("Churrasqueira?"),
-                      onTap: () => setState(() {
-                        _isChurrasqueira = !_isChurrasqueira;
-                      }),
+                    child: CheckboxListTile(
+                      activeColor: Color(0xFF1E1C3F),
+                      title: Text("Churrasqueira"),
+                      value: _isChurrasqueira,
+                      onChanged: (newValue) {
+                        setState(() {
+                          _isChurrasqueira = newValue;
+                        });
+                      },
+                      controlAffinity: ListTileControlAffinity
+                          .leading, //  <-- leading Checkbox
                     ),
                   ),
                   Flexible(
-                    child: ListTile(
-                      leading: CircularCheckBox(
-                          value: _isAcademia,
-                          checkColor: Colors.white,
-                          activeColor: Colors.green,
-                          inactiveColor: Colors.redAccent,
-                          disabledColor: Colors.grey,
-                          onChanged: (val) => setState(() {
-                                _isAcademia = !_isAcademia;
-                              })),
-                      title: Text("Academia?"),
-                      onTap: () => setState(() {
-                        _isAcademia = !_isAcademia;
-                        print(_isAcademia);
-                      }),
+                    child: CheckboxListTile(
+                      activeColor: Color(0xFF1E1C3F),
+                      title: Text("Salão de Festas"),
+                      value: _isSalaoDeFestas,
+                      onChanged: (newValue) {
+                        setState(() {
+                          _isSalaoDeFestas = newValue;
+                        });
+                      },
+                      controlAffinity: ListTileControlAffinity
+                          .leading, //  <-- leading Checkbox
                     ),
                   ),
                   Flexible(
-                    child: ListTile(
-                      leading: CircularCheckBox(
-                          value: _isPiscina,
-                          checkColor: Colors.white,
-                          activeColor: Colors.green,
-                          inactiveColor: Colors.redAccent,
-                          disabledColor: Colors.grey,
-                          onChanged: (val) => setState(() {
-                                _isPiscina = !_isPiscina;
-                              })),
-                      title: Text("Piscina?"),
-                      onTap: () => setState(() {
-                        _isPiscina = !_isPiscina;
-                      }),
+                    child: CheckboxListTile(
+                      activeColor: Color(0xFF1E1C3F),
+                      title: Text("Academia"),
+                      value: _isAcademia,
+                      onChanged: (newValue) {
+                        setState(() {
+                          _isAcademia = newValue;
+                        });
+                      },
+                      controlAffinity: ListTileControlAffinity
+                          .leading, //  <-- leading Checkbox
                     ),
-                  )
+                  ),
                 ],
+              ),
+              SizedBox(
+                height: 20,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Flexible(
-                    child: ListTile(
-                      leading: CircularCheckBox(
-                          value: _isQuadraDeTenis,
-                          checkColor: Colors.white,
-                          activeColor: Colors.green,
-                          inactiveColor: Colors.redAccent,
-                          disabledColor: Colors.grey,
-                          onChanged: (val) => setState(() {
-                                _isQuadraDeTenis = !_isQuadraDeTenis;
-                              })),
-                      title: Text("Quadra De Tenis?"),
-                      onTap: () => setState(() {
-                        _isQuadraDeTenis = !_isQuadraDeTenis;
-                      }),
+                    child: CheckboxListTile(
+                      activeColor: Color(0xFF1E1C3F),
+                      title: Text("Quadra de Tenis"),
+                      value: _isQuadraDeTenis,
+                      onChanged: (newValue) {
+                        setState(() {
+                          _isQuadraDeTenis = newValue;
+                        });
+                      },
+                      controlAffinity: ListTileControlAffinity
+                          .leading, //  <-- leading Checkbox
                     ),
                   ),
                   Flexible(
-                    child: ListTile(
-                      leading: CircularCheckBox(
-                          value: _isQuadraFutsal,
-                          checkColor: Colors.white,
-                          activeColor: Colors.green,
-                          inactiveColor: Colors.redAccent,
-                          disabledColor: Colors.grey,
-                          onChanged: (val) => setState(() {
-                                _isQuadraFutsal = !_isQuadraFutsal;
-                              })),
-                      title: Text("Quadra Futsal?"),
-                      onTap: () => setState(() {
-                        _isQuadraFutsal = !_isQuadraFutsal;
-                      }),
+                    child: CheckboxListTile(
+                      activeColor: Color(0xFF1E1C3F),
+                      title: Text("Quadra de Futsal"),
+                      value: _isQuadraFutsal,
+                      onChanged: (newValue) {
+                        setState(() {
+                          _isQuadraFutsal = newValue;
+                        });
+                      },
+                      controlAffinity: ListTileControlAffinity
+                          .leading, //  <-- leading Checkbox
                     ),
                   ),
                   Flexible(
-                    child: ListTile(
-                      leading: CircularCheckBox(
-                          value: _isSalaDeJogos,
-                          checkColor: Colors.white,
-                          activeColor: Colors.green,
-                          inactiveColor: Colors.redAccent,
-                          disabledColor: Colors.grey,
-                          onChanged: (val) => setState(() {
-                                _isSalaDeJogos = !_isSalaDeJogos;
-                              })),
-                      title: Text("Sala De Jogos?"),
-                      onTap: () => setState(() {
-                        _isSalaDeJogos = !_isSalaDeJogos;
-                      }),
+                    child: CheckboxListTile(
+                      activeColor: Color(0xFF1E1C3F),
+                      title: Text("Piscina"),
+                      value: _isPiscina,
+                      onChanged: (newValue) {
+                        setState(() {
+                          _isPiscina = newValue;
+                        });
+                      },
+                      controlAffinity: ListTileControlAffinity
+                          .leading, //  <-- leading Checkbox
                     ),
                   )
                 ],
               ),
+              SizedBox(
+                height: 20,
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Flexible(
-                    child: ListTile(
-                      leading: CircularCheckBox(
-                          value: _isSalaoDeFestas,
-                          checkColor: Colors.white,
-                          activeColor: Colors.green,
-                          inactiveColor: Colors.redAccent,
-                          disabledColor: Colors.grey,
-                          onChanged: (val) => setState(() {
-                                _isSalaoDeFestas = !_isSalaoDeFestas;
-                                print(_isSalaoDeFestas);
-                              })),
-                      title: Text("Salao De Festas?"),
-                      onTap: () => setState(() {
-                        _isSalaoDeFestas = !_isSalaoDeFestas;
-                      }),
+                    child: CheckboxListTile(
+                      activeColor: Color(0xFF1E1C3F),
+                      title: Text("Sala de Jogos"),
+                      value: _isSalaDeJogos,
+                      onChanged: (newValue) {
+                        setState(() {
+                          _isSalaDeJogos = newValue;
+                        });
+                      },
+                      controlAffinity: ListTileControlAffinity
+                          .leading, //  <-- leading Checkbox
                     ),
                   ),
                 ],
@@ -471,16 +449,8 @@ class _CadCondominiosPageState
                     borderRadius: BorderRadius.circular(5)),
                 padding:
                     EdgeInsets.only(left: 80, right: 80, top: 16, bottom: 16),
-                onPressed: () async {
-                  if (formKey.currentState.validate()) {
-                    setState(() {
-                      nome = _controllerNome.text;
-                      numeroDeBlocos = _controllerNumeroDeBlocos.text;
-                      numeroDeApts = _controllerNumeroDeApts.text;
-                      formKey.currentState.save();
-                      _cadastrarCondominio();
-                    });
-                  }
+                onPressed: () {
+                  _cadastrarCondominio();
                 },
               )
             ],

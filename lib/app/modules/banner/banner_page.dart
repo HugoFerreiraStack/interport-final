@@ -6,7 +6,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_ink_well/image_ink_well.dart';
 import 'package:interport_app/app/shared/model/banner.dart';
 import 'package:interport_app/app/shared/nav_bar.dart';
-import 'package:interport_app/app/shared/pages/landing_banner_page.dart';
 import 'banner_controller.dart';
 import 'package:firebase/firebase.dart' as fb;
 
@@ -24,7 +23,7 @@ class _BannerPageState extends ModularState<BannerPage, BannerController> {
   File imageFile;
   fb.UploadTask _uploadTask;
   var condominioSelecionado;
-  String _condomino;
+  String _condomino = "";
   String _urlImage;
 
   uploadImage() async {
@@ -135,7 +134,10 @@ class _BannerPageState extends ModularState<BannerPage, BannerController> {
                     fontWeight: FontWeight.bold,
                     color: Colors.black),
               ),
-              _bannerImage(),
+              if (_condomino != "") ...{
+                _bannerImage(),
+              },
+
               SizedBox(
                 height: 20,
               ),

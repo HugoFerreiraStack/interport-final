@@ -6,8 +6,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_ink_well/image_ink_well.dart';
 import 'package:interport_app/app/shared/model/Usuario.dart';
+import 'package:interport_app/app/shared/nav_bar.dart';
 import 'cad_usuarios_controller.dart';
 import 'package:firebase/firebase.dart' as fb;
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
@@ -36,6 +38,7 @@ class _CadUsuariosPageState
   TextEditingController _controllerApt = TextEditingController();
   TextEditingController _controllerSenha = TextEditingController();
   String _id;
+  String _idCondominio;
   String _nome;
   String _email;
   String _bloco;
@@ -61,6 +64,7 @@ class _CadUsuariosPageState
       if (_senha.isNotEmpty && _senha.length > 5) {
         Usuario usuario = Usuario();
         usuario.id = _usuario.id;
+        usuario.idCondominio = _idCondominio;
         usuario.nome = _nome;
         usuario.email = _email;
         usuario.senha = _senha;
@@ -188,420 +192,310 @@ class _CadUsuariosPageState
     super.initState();
   }
 
-  Widget _bodySelect() {
-    if (_tipoUsuarioFinal == "Admin") {
-      return _cadAdmin();
-    } else if (_tipoUsuarioFinal == "Morador") {
-      return _cadMorador();
-    } else if (_tipoUsuarioFinal == "Sindico") {
-      return _cadSindico();
-    } else if (_tipoUsuarioFinal == "Funcionario") {
-      return _cadFuncionarios();
-    } else {
-      return Center(
-        child: Column(
-          children: <Widget>[
-            Text(
-              "Selecione um tipo de Usuario para cadastrar",
-              style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-            )
-          ],
-        ),
-      );
-    }
-  }
-
-  Widget _cadFuncionarios() {
+  Widget _body() {
     return Container(
-      child: Container(
-        child: Column(
-          children: [
-            SizedBox(
-              height: 10,
-            ),
-            _avatarUser(),
-            SizedBox(
-              height: 20,
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Row(
-              children: [
-                Flexible(
-                  child: TextFormField(
-                    controller: _controllerNome,
-                    onSaved: (nome) {
-                      _nome = nome;
-                      print(_nome);
+        width: MediaQuery.of(context).size.width / 2,
+        height: MediaQuery.of(context).size.height / 1,
+        child: Container(
+          padding: EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+          ),
+          child: Column(
+            children: [
+              SizedBox(
+                height: 20,
+              ),
+              Text(
+                "Cadastro de Usuarios",
+                style: GoogleFonts.inter(
+                    fontSize: 25,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black),
+              ),
+              SizedBox(
+                height: 30,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  DropdownButton(
+                    elevation: 12,
+                    items: _tipoUsuario
+                        .map((value) => DropdownMenuItem(
+                              child: Text(
+                                value,
+                              ),
+                              value: value,
+                            ))
+                        .toList(),
+                    onChanged: (_tipoUsuarioSelecionado) {
+                      setState(() {
+                        tipoUsuarioSelecionado = _tipoUsuarioSelecionado;
+                        _tipoUsuarioFinal = tipoUsuarioSelecionado.toString();
+                        print(_tipoUsuarioFinal);
+                        print(_id);
+                      });
                     },
-                    validator: (valor) {
-                      if (valor.isEmpty) {
-                        return "Este campo é obrigatorio";
-                      }
-                      return null;
-                    },
-                    keyboardType: TextInputType.text,
-                    decoration: InputDecoration(
-                        prefixIcon: Icon(
-                          Icons.person,
-                          color: Color(0xFF1E1C3F),
-                        ),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(6)),
-                        hintText: "Digite o nome do usuario",
-                        labelText: "Nome"),
+                    value: tipoUsuarioSelecionado,
+                    hint: Text(
+                      "Selecione o Tipo de Usuario",
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  )
+                ],
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              _avatarUser(),
+              SizedBox(
+                height: 20,
+              ),
+              Row(
+                children: [
+                  Flexible(
+                    child: TextFormField(
+                      controller: _controllerNome,
+                      onChanged: (nome) {
+                        _nome = nome;
+                        print(_nome);
+                      },
+                      validator: (valor) {
+                        if (valor.isEmpty) {
+                          return "Este campo é obrigatorio";
+                        }
+                        return null;
+                      },
+                      keyboardType: TextInputType.text,
+                      decoration: InputDecoration(
+                          prefixIcon: Icon(
+                            Icons.person,
+                            color: Color(0xFF1E1C3F),
+                          ),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(6)),
+                          hintText: "Digite o nome do usuario",
+                          labelText: "Nome"),
+                    ),
                   ),
-                ),
-                SizedBox(
-                  width: 20,
-                ),
-                Flexible(
-                  child: TextFormField(
-                    controller: _controllerEmail,
-                    onSaved: (email) {
-                      _email = email;
-                      print(_email);
-                    },
-                    validator: (valor) {
-                      if (valor.isEmpty) {
-                        return "Este campo é obrigatorio";
-                      }
-                      return null;
-                    },
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: InputDecoration(
-                        prefixIcon: Icon(
-                          Icons.email,
-                          color: Color(0xFF1E1C3F),
-                        ),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(6)),
-                        hintText: "Digite o e-mail do usuario",
-                        labelText: "E-Mail"),
+                  SizedBox(
+                    width: 20,
                   ),
-                )
-              ],
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Row(
-              children: [
-                Flexible(
-                  child: TextFormField(
-                    controller: _controllerFone,
-                    onSaved: (fone) {
-                      _telefone = fone;
-                      print(_telefone);
-                    },
-                    validator: (valor) {
-                      if (valor.isEmpty) {
-                        return "Este campo é obrigatorio";
-                      }
-                      return null;
-                    },
-                    keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(
-                        prefixIcon: Icon(
-                          Icons.phone,
-                          color: Color(0xFF1E1C3F),
-                        ),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(6)),
-                        hintText: "Digite o telefone do usuario",
-                        labelText: "Telefone"),
+                  Flexible(
+                    child: TextFormField(
+                      controller: _controllerEmail,
+                      onChanged: (email) {
+                        _email = email;
+                        print(_email);
+                      },
+                      validator: (valor) {
+                        if (valor.isEmpty) {
+                          return "Este campo é obrigatorio";
+                        }
+                        return null;
+                      },
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: InputDecoration(
+                          prefixIcon: Icon(
+                            Icons.email,
+                            color: Color(0xFF1E1C3F),
+                          ),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(6)),
+                          hintText: "Digite o e-mail do usuario",
+                          labelText: "E-Mail"),
+                    ),
+                  )
+                ],
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              Row(
+                children: [
+                  Flexible(
+                    child: TextFormField(
+                      controller: _controllerFone,
+                      onChanged: (fone) {
+                        _telefone = fone;
+                        print(_telefone);
+                      },
+                      validator: (valor) {
+                        if (valor.isEmpty) {
+                          return "Este campo é obrigatorio";
+                        }
+                        return null;
+                      },
+                      keyboardType: TextInputType.phone,
+                      decoration: InputDecoration(
+                          prefixIcon: Icon(
+                            Icons.phone,
+                            color: Color(0xFF1E1C3F),
+                          ),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(6)),
+                          hintText: "Digite o telefone do usuario",
+                          labelText: "Telefone"),
+                    ),
                   ),
-                ),
-                SizedBox(
-                  width: 20,
-                ),
-                Flexible(
-                  child: TextFormField(
-                    controller: _controllerSenha,
-                    onSaved: (senha) {
-                      _senha = senha;
-                      print(_senha);
-                    },
-                    validator: (valor) {
-                      if (valor.isEmpty) {
-                        return "Este campo é obrigatorio";
-                      }
-                      return null;
-                    },
-                    keyboardType: TextInputType.text,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                        prefixIcon: Icon(
-                          Icons.lock,
-                          color: Color(0xFF1E1C3F),
-                        ),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(6)),
-                        hintText: "Digite a senha do usuario",
-                        labelText: "Senha"),
+                  SizedBox(
+                    width: 20,
                   ),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection("Condominios")
-                  .snapshots(),
-              // ignore: missing_return
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  Text("Carregando...");
-                } else {
-                  List<DropdownMenuItem> condominiosItens = [];
-
-                  for (int i = 0; i < snapshot.data.docs.length; i++) {
-                    DocumentSnapshot snap = snapshot.data.docs[i];
-                    condominiosItens.add(DropdownMenuItem(
-                      child: Text(
-                        snap.get("nome"),
-                      ),
-                      value: "${snap.get("nome")}",
-                    ));
-                  }
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      DropdownButton(
-                        items: condominiosItens,
-                        onChanged: (condominiosValue) {
-                          setState(() {
-                            condominioSelecionado = condominiosValue;
-                          });
+                  Flexible(
+                    child: TextFormField(
+                      controller: _controllerSenha,
+                      onChanged: (senha) {
+                        _senha = senha;
+                        print(_senha);
+                      },
+                      validator: (valor) {
+                        if (valor.isEmpty) {
+                          return "Este campo é obrigatorio";
+                        }
+                        return null;
+                      },
+                      keyboardType: TextInputType.text,
+                      obscureText: true,
+                      decoration: InputDecoration(
+                          prefixIcon: Icon(
+                            Icons.lock,
+                            color: Color(0xFF1E1C3F),
+                          ),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(6)),
+                          hintText: "Digite a senha do usuario",
+                          labelText: "Senha"),
+                    ),
+                  )
+                ],
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              if (_tipoUsuarioFinal == "Morador") ...{
+                Row(
+                  children: [
+                    Flexible(
+                      child: TextFormField(
+                        controller: _controllerBloco,
+                        onChanged: (bloco) {
+                          _bloco = bloco;
+                          print(_bloco);
                         },
-                        value: condominioSelecionado,
-                        hint: Text("Selecione o Condominio"),
+                        keyboardType: TextInputType.text,
+                        decoration: InputDecoration(
+                            prefixIcon: Icon(
+                              Icons.home,
+                              color: Color(0xFF1E1C3F),
+                            ),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(6)),
+                            hintText: "Digite o Bloco",
+                            labelText: "Bloco"),
                       ),
-                    ],
-                  );
-                }
-                return Container();
-              },
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 200, right: 200),
-              child: RaisedButton(
-                child: Text(
-                  "CADASTRAR",
-                  style: TextStyle(color: Colors.white, fontSize: 20),
-                ),
-                color: Color(0xFF1E1C3F),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5)),
-                padding: EdgeInsets.fromLTRB(32, 16, 32, 16),
-                onPressed: () async {
-                  if (formKey.currentState.validate()) {
-                    setState(() {
-                      _nome = _controllerNome.text;
-                      _email = _controllerEmail.text;
-                      _telefone = _controllerFone.text;
-                      _senha = _controllerSenha.text;
-                      _tipoUsuarioFinal = tipoUsuarioSelecionado;
-                      _condomino = condominioSelecionado;
-                      _bloco = "Nao possui";
-                      _apt = "Nao possui";
-                      formKey.currentState.save();
-                      _validarCampos();
-                    });
-                  }
-                },
-              ),
-            )
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _cadSindico() {
-    return Container(
-      child: Container(
-        child: Column(
-          children: [
-            SizedBox(
-              height: 10,
-            ),
-            _avatarUser(),
-            SizedBox(
-              height: 20,
-            ),
-            Row(
-              children: [
-                Flexible(
-                  child: TextFormField(
-                    controller: _controllerNome,
-                    onSaved: (nome) {
-                      _nome = nome;
-                      print(_nome);
-                    },
-                    validator: (valor) {
-                      if (valor.isEmpty) {
-                        return "Este campo é obrigatorio";
-                      }
-                      return null;
-                    },
-                    keyboardType: TextInputType.text,
-                    decoration: InputDecoration(
-                        prefixIcon: Icon(
-                          Icons.person,
-                          color: Color(0xFF1E1C3F),
-                        ),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(6)),
-                        hintText: "Digite o nome do usuario",
-                        labelText: "Nome"),
-                  ),
-                ),
-                SizedBox(
-                  width: 20,
-                ),
-                Flexible(
-                  child: TextFormField(
-                    controller: _controllerEmail,
-                    onSaved: (email) {
-                      _email = email;
-                      print(_email);
-                    },
-                    validator: (valor) {
-                      if (valor.isEmpty) {
-                        return "Este campo é obrigatorio";
-                      }
-                      return null;
-                    },
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: InputDecoration(
-                        prefixIcon: Icon(
-                          Icons.email,
-                          color: Color(0xFF1E1C3F),
-                        ),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(6)),
-                        hintText: "Digite o e-mail do usuario",
-                        labelText: "E-Mail"),
-                  ),
-                )
-              ],
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Row(
-              children: [
-                Flexible(
-                  child: TextFormField(
-                    controller: _controllerFone,
-                    onSaved: (fone) {
-                      _telefone = fone;
-                      print(_telefone);
-                    },
-                    validator: (valor) {
-                      if (valor.isEmpty) {
-                        return "Este campo é obrigatorio";
-                      }
-                      return null;
-                    },
-                    keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(
-                        prefixIcon: Icon(
-                          Icons.phone,
-                          color: Color(0xFF1E1C3F),
-                        ),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(6)),
-                        hintText: "Digite o telefone do usuario",
-                        labelText: "Telefone"),
-                  ),
-                ),
-                SizedBox(
-                  width: 20,
-                ),
-                Flexible(
-                  child: TextFormField(
-                    controller: _controllerSenha,
-                    onSaved: (senha) {
-                      _senha = senha;
-                      print(_senha);
-                    },
-                    validator: (valor) {
-                      if (valor.isEmpty) {
-                        return "Este campo é obrigatorio";
-                      }
-                      return null;
-                    },
-                    keyboardType: TextInputType.text,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                        prefixIcon: Icon(
-                          Icons.lock,
-                          color: Color(0xFF1E1C3F),
-                        ),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(6)),
-                        hintText: "Digite a senha do usuario",
-                        labelText: "Senha"),
-                  ),
-                )
-              ],
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection("Condominios")
-                  .snapshots(),
-              // ignore: missing_return
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  Text("Carregando...");
-                } else {
-                  List<DropdownMenuItem> condominiosItens = [];
-
-                  for (int i = 0; i < snapshot.data.docs.length; i++) {
-                    DocumentSnapshot snap = snapshot.data.docs[i];
-                    condominiosItens.add(DropdownMenuItem(
-                      child: Text(
-                        snap.get("nome"),
-                      ),
-                      value: "${snap.get("nome")}",
-                    ));
-                  }
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      DropdownButton(
-                        items: condominiosItens,
-                        onChanged: (condominiosValue) {
-                          setState(() {
-                            condominioSelecionado = condominiosValue;
-                          });
+                    ),
+                    SizedBox(
+                      width: 20,
+                    ),
+                    Flexible(
+                      child: TextFormField(
+                        controller: _controllerApt,
+                        onChanged: (apt) {
+                          _apt = apt;
+                          print(_apt);
                         },
-                        value: condominioSelecionado,
-                        hint: Text("Selecione o Condominio"),
+                        keyboardType: TextInputType.text,
+                        decoration: InputDecoration(
+                            prefixIcon: Icon(
+                              Icons.home,
+                              color: Color(0xFF1E1C3F),
+                            ),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(6)),
+                            hintText: "Digite o Apartamento do usuario",
+                            labelText: "Apartamento"),
                       ),
-                    ],
-                  );
-                }
-                return Container();
+                    )
+                  ],
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Usuario Master?",
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(
+                      width: 5,
+                    ),
+                    Checkbox(
+                      activeColor: Color(0xFF1E1C3F),
+                      onChanged: (bool value) {
+                        setState(() {
+                          master = value;
+                        });
+                      },
+                      value: master,
+                    ),
+                  ],
+                ),
               },
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 200, right: 200),
-              child: RaisedButton(
+              SizedBox(
+                height: 20,
+              ),
+              StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection("Condominios")
+                    .snapshots(),
+                // ignore: missing_return
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    Text("Carregando...");
+                  } else {
+                    List<DropdownMenuItem> condominiosItens = [];
+
+                    for (int i = 0; i < snapshot.data.docs.length; i++) {
+                      DocumentSnapshot snap = snapshot.data.docs[i];
+
+                      _idCondominio = snapshot.data.docs[i].data()['id'];
+                      print(_idCondominio);
+
+                      condominiosItens.add(DropdownMenuItem(
+                        child: Text(
+                          snap.get("nome"),
+                        ),
+                        value: "${snap.get("nome")}",
+                      ));
+                    }
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        DropdownButton(
+                          items: condominiosItens,
+                          onChanged: (condominiosValue) {
+                            setState(() {
+                              condominioSelecionado = condominiosValue;
+                              _condomino = condominioSelecionado.toString();
+                            });
+                          },
+                          value: condominioSelecionado,
+                          hint: Text("Selecione o Condominio"),
+                        ),
+                      ],
+                    );
+                  }
+                  return Container();
+                },
+              ),
+              SizedBox(
+                height: 40,
+              ),
+              RaisedButton(
                 child: Text(
                   "CADASTRAR",
                   style: TextStyle(color: Colors.white, fontSize: 20),
@@ -609,567 +503,40 @@ class _CadUsuariosPageState
                 color: Color(0xFF1E1C3F),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5)),
-                padding: EdgeInsets.fromLTRB(32, 16, 32, 16),
-                onPressed: () async {
-                  if (formKey.currentState.validate()) {
-                    setState(() {
-                      _nome = _controllerNome.text;
-                      _email = _controllerEmail.text;
-                      _telefone = _controllerFone.text;
-                      _senha = _controllerSenha.text;
-                      _tipoUsuarioFinal = tipoUsuarioSelecionado;
-                      _condomino = condominioSelecionado;
-                      _bloco = "Nao possui";
-                      _apt = "Nao possui";
-                      formKey.currentState.save();
-
-                      _validarCampos();
-                    });
-                  }
+                padding:
+                    EdgeInsets.only(left: 80, right: 80, top: 16, bottom: 16),
+                onPressed: () {
+                  _validarCampos();
                 },
-              ),
-            )
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _cadAdmin() {
-    return Container(
-      child: Container(
-        child: Column(
-          children: [
-            SizedBox(
-              height: 10,
-            ),
-            _avatarUser(),
-            SizedBox(
-              height: 10,
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Row(
-              children: [
-                Flexible(
-                  child: TextFormField(
-                    controller: _controllerNome,
-                    onSaved: (nome) {
-                      _nome = nome;
-                      print(_nome);
-                    },
-                    validator: (valor) {
-                      if (valor.isEmpty) {
-                        return "Este campo é obrigatorio";
-                      }
-                      return null;
-                    },
-                    keyboardType: TextInputType.text,
-                    decoration: InputDecoration(
-                        prefixIcon: Icon(
-                          Icons.person,
-                          color: Color(0xFF1E1C3F),
-                        ),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(6)),
-                        hintText: "Digite o nome do usuario",
-                        labelText: "Nome"),
-                  ),
-                ),
-                SizedBox(
-                  width: 20,
-                ),
-                Flexible(
-                  child: TextFormField(
-                    controller: _controllerEmail,
-                    onSaved: (email) {
-                      _email = email;
-                      print(_email);
-                    },
-                    validator: (valor) {
-                      if (valor.isEmpty) {
-                        return "Este campo é obrigatorio";
-                      }
-                      return null;
-                    },
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: InputDecoration(
-                        prefixIcon: Icon(
-                          Icons.email,
-                          color: Color(0xFF1E1C3F),
-                        ),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(6)),
-                        hintText: "Digite o e-mail do usuario",
-                        labelText: "E-Mail"),
-                  ),
-                )
-              ],
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Row(
-              children: [
-                Flexible(
-                  child: TextFormField(
-                    controller: _controllerFone,
-                    onSaved: (fone) {
-                      _telefone = fone;
-                      print(_telefone);
-                    },
-                    validator: (valor) {
-                      if (valor.isEmpty) {
-                        return "Este campo é obrigatorio";
-                      }
-                      return null;
-                    },
-                    keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(
-                        prefixIcon: Icon(
-                          Icons.phone,
-                          color: Color(0xFF1E1C3F),
-                        ),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(6)),
-                        hintText: "Digite o telefone do usuario",
-                        labelText: "Telefone"),
-                  ),
-                ),
-                SizedBox(
-                  width: 20,
-                ),
-                Flexible(
-                  child: TextFormField(
-                    controller: _controllerSenha,
-                    onSaved: (senha) {
-                      _senha = senha;
-                      print(_senha);
-                    },
-                    validator: (valor) {
-                      if (valor.isEmpty) {
-                        return "Este campo é obrigatorio";
-                      }
-                      return null;
-                    },
-                    keyboardType: TextInputType.text,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                        prefixIcon: Icon(
-                          Icons.lock,
-                          color: Color(0xFF1E1C3F),
-                        ),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(6)),
-                        hintText: "Digite a senha do usuario",
-                        labelText: "Senha"),
-                  ),
-                )
-              ],
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 200, right: 200),
-              child: RaisedButton(
-                child: Text(
-                  "CADASTRAR",
-                  style: TextStyle(color: Colors.white, fontSize: 20),
-                ),
-                color: Color(0xFF1E1C3F),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5)),
-                padding: EdgeInsets.fromLTRB(32, 16, 32, 16),
-                onPressed: () async {
-                  if (formKey.currentState.validate()) {
-                    setState(() {
-                      _nome = _controllerNome.text;
-                      _email = _controllerEmail.text;
-                      _telefone = _controllerFone.text;
-                      _senha = _controllerSenha.text;
-                      _tipoUsuarioFinal = tipoUsuarioSelecionado;
-                      _condomino = "Nao Possui";
-                      _bloco = "Nao possui";
-                      _apt = "Nao possui";
-                      formKey.currentState.save();
-                      _validarCampos();
-                    });
-                  }
-                },
-              ),
-            )
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _cadMorador() {
-    return Container(
-      child: Container(
-        child: Column(
-          children: <Widget>[
-            SizedBox(
-              height: 10,
-            ),
-            _avatarUser(),
-            SizedBox(
-              height: 10,
-            ),
-            Row(
-              children: [
-                Flexible(
-                  child: TextFormField(
-                    controller: _controllerNome,
-                    onSaved: (nome) {
-                      _nome = nome;
-                      print(_nome);
-                    },
-                    validator: (valor) {
-                      if (valor.isEmpty) {
-                        return "Este campo é obrigatorio";
-                      }
-                      return null;
-                    },
-                    keyboardType: TextInputType.text,
-                    decoration: InputDecoration(
-                        prefixIcon: Icon(
-                          Icons.person,
-                          color: Color(0xFF1E1C3F),
-                        ),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(6)),
-                        hintText: "Digite o nome do usuario",
-                        labelText: "Nome"),
-                  ),
-                ),
-                SizedBox(
-                  width: 20,
-                ),
-                Flexible(
-                  child: TextFormField(
-                    controller: _controllerEmail,
-                    onSaved: (email) {
-                      _email = email;
-                      print(_email);
-                    },
-                    validator: (valor) {
-                      if (valor.isEmpty) {
-                        return "Este campo é obrigatorio";
-                      }
-                      return null;
-                    },
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: InputDecoration(
-                        prefixIcon: Icon(
-                          Icons.email,
-                          color: Color(0xFF1E1C3F),
-                        ),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(6)),
-                        hintText: "Digite o e-mail do usuario",
-                        labelText: "E-Mail"),
-                  ),
-                )
-              ],
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Row(
-              children: [
-                Flexible(
-                  child: TextFormField(
-                    controller: _controllerFone,
-                    onSaved: (fone) {
-                      _telefone = fone;
-                      print(_telefone);
-                    },
-                    validator: (valor) {
-                      if (valor.isEmpty) {
-                        return "Este campo é obrigatorio";
-                      }
-                      return null;
-                    },
-                    keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(
-                        prefixIcon: Icon(
-                          Icons.phone,
-                          color: Color(0xFF1E1C3F),
-                        ),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(6)),
-                        hintText: "Digite o telefone do usuario",
-                        labelText: "Telefone"),
-                  ),
-                ),
-                SizedBox(
-                  width: 20,
-                ),
-                Flexible(
-                  child: TextFormField(
-                    controller: _controllerSenha,
-                    onSaved: (senha) {
-                      _senha = senha;
-                      print(_senha);
-                    },
-                    validator: (valor) {
-                      if (valor.isEmpty) {
-                        return "Este campo é obrigatorio";
-                      }
-                      return null;
-                    },
-                    keyboardType: TextInputType.text,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                        prefixIcon: Icon(
-                          Icons.lock,
-                          color: Color(0xFF1E1C3F),
-                        ),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(6)),
-                        hintText: "Digite a senha do usuario",
-                        labelText: "Senha"),
-                  ),
-                )
-              ],
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Row(
-              children: [
-                Flexible(
-                  child: TextFormField(
-                    controller: _controllerBloco,
-                    onSaved: (bloco) {
-                      _bloco = bloco;
-                      print(_bloco);
-                    },
-                    keyboardType: TextInputType.text,
-                    decoration: InputDecoration(
-                        prefixIcon: Icon(
-                          Icons.home,
-                          color: Color(0xFF1E1C3F),
-                        ),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(6)),
-                        hintText: "Digite o Bloco",
-                        labelText: "Bloco"),
-                  ),
-                ),
-                SizedBox(
-                  width: 20,
-                ),
-                Flexible(
-                  child: TextFormField(
-                    controller: _controllerApt,
-                    onSaved: (apt) {
-                      _apt = apt;
-                      print(_apt);
-                    },
-                    keyboardType: TextInputType.text,
-                    decoration: InputDecoration(
-                        prefixIcon: Icon(
-                          Icons.home,
-                          color: Color(0xFF1E1C3F),
-                        ),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(6)),
-                        hintText: "Digite o Apartamento do usuario",
-                        labelText: "Apartamento"),
-                  ),
-                )
-              ],
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection("Condominios")
-                  .snapshots(),
-              // ignore: missing_return
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  Text("Carregando...");
-                } else {
-                  List<DropdownMenuItem> condominiosItens = [];
-
-                  for (int i = 0; i < snapshot.data.docs.length; i++) {
-                    DocumentSnapshot snap = snapshot.data.docs[i];
-                    condominiosItens.add(DropdownMenuItem(
-                      child: Text(
-                        snap.get("nome"),
-                      ),
-                      value: "${snap.get("nome")}",
-                    ));
-                  }
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      DropdownButton(
-                        items: condominiosItens,
-                        onChanged: (condominiosValue) {
-                          setState(() {
-                            condominioSelecionado = condominiosValue;
-                          });
-                        },
-                        value: condominioSelecionado,
-                        hint: Text("Selecione o Condominio"),
-                      ),
-                    ],
-                  );
-                }
-                return Container();
-              },
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "Usuario Master?",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(
-                  width: 5,
-                ),
-                Checkbox(
-                  activeColor: Color(0xFF1E1C3F),
-                  onChanged: (bool value) {
-                    setState(() {
-                      master = value;
-                    });
-                  },
-                  value: master,
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 200, right: 200),
-              child: RaisedButton(
-                child: Text(
-                  "CADASTRAR",
-                  style: TextStyle(color: Colors.white, fontSize: 20),
-                ),
-                color: Color(0xFF1E1C3F),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5)),
-                padding: EdgeInsets.fromLTRB(32, 16, 32, 16),
-                onPressed: () async {
-                  if (formKey.currentState.validate()) {
-                    setState(() {
-                      _nome = _controllerNome.text;
-                      _email = _controllerEmail.text;
-                      _telefone = _controllerFone.text;
-                      _senha = _controllerSenha.text;
-                      _tipoUsuarioFinal = tipoUsuarioSelecionado;
-
-                      _bloco = _controllerBloco.text;
-                      _apt = _controllerApt.text;
-                      if (_condomino == null) {
-                        _condomino = "";
-                      } else {
-                        _condomino = condominioSelecionado.toString();
-                      }
-                      formKey.currentState.save();
-
-                      _validarCampos();
-                    });
-                  }
-                },
-              ),
-            )
-          ],
-        ),
-      ),
-    );
+              )
+            ],
+          ),
+        ));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios),
-            onPressed: () {
-              Modular.to.pop(context);
-            },
-          ),
-          centerTitle: true,
-          backgroundColor: Color(0xFF1E1C3F),
-          title: Text(widget.title),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+              colors: [Color(0xFF1E1C3F), Colors.black]),
         ),
-        body: Form(
-          key: formKey,
-          child: Center(
-            child: Container(
-              width: MediaQuery.of(context).size.width / 2,
-              child: ListView(
-                children: <Widget>[
-                  SizedBox(
-                    height: 20,
-                  ),
-                  Container(
-                    width: 180,
-                    height: 200,
-                    child: Image.asset(
-                      "images/logo.png",
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      DropdownButton(
-                        elevation: 12,
-                        items: _tipoUsuario
-                            .map((value) => DropdownMenuItem(
-                                  child: Text(
-                                    value,
-                                  ),
-                                  value: value,
-                                ))
-                            .toList(),
-                        onChanged: (_tipoUsuarioSelecionado) {
-                          setState(() {
-                            tipoUsuarioSelecionado = _tipoUsuarioSelecionado;
-                            _tipoUsuarioFinal =
-                                tipoUsuarioSelecionado.toString();
-                            print(_tipoUsuarioFinal);
-                            print(_id);
-                          });
-                        },
-                        value: tipoUsuarioSelecionado,
-                        hint: Text(
-                          "Selecione o Tipo de Usuario",
-                          style: TextStyle(color: Colors.black),
-                        ),
-                      )
-                    ],
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  _bodySelect(),
-                  SizedBox(
-                    height: 30,
-                  ),
-                ],
-              ),
-            ),
+        child: SingleChildScrollView(
+          child: Column(
+            children: <Widget>[
+              Navbar(),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                    vertical: 30.0, horizontal: 60.0),
+                child: _body(),
+              )
+            ],
           ),
-        ));
+        ),
+      ),
+    );
   }
 }

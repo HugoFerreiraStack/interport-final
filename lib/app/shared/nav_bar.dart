@@ -74,7 +74,7 @@ class DesktopNavbar extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(Radius.circular(20.0))),
                   onPressed: () async {
-                    await Modular.to.pushReplacementNamed('/cad_condominio');
+                    await Modular.to.pushReplacementNamed('/condominio');
                   },
                   child: Text(
                     "Condomínios",
@@ -89,7 +89,9 @@ class DesktopNavbar extends StatelessWidget {
                   color: Colors.transparent,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(Radius.circular(20.0))),
-                  onPressed: () {},
+                  onPressed: () async {
+                    await Modular.to.pushReplacementNamed('/eventos');
+                  },
                   child: Text(
                     "Eventos",
                     style: TextStyle(color: Colors.white),
@@ -108,6 +110,38 @@ class DesktopNavbar extends StatelessWidget {
                   },
                   child: Text(
                     "Livro de Ocorrência",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                SizedBox(
+                  width: 30,
+                ),
+                MaterialButton(
+                  hoverColor: Colors.blue,
+                  color: Colors.transparent,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(20.0))),
+                  onPressed: () async {
+                    await Modular.to.pushReplacementNamed('/comunicados');
+                  },
+                  child: Text(
+                    "Comunicados",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                SizedBox(
+                  width: 30,
+                ),
+                MaterialButton(
+                  hoverColor: Colors.blue,
+                  color: Colors.transparent,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(20.0))),
+                  onPressed: () async {
+                    await Modular.to.pushReplacementNamed('/usuarios');
+                  },
+                  child: Text(
+                    "Usuarios",
                     style: TextStyle(color: Colors.white),
                   ),
                 ),

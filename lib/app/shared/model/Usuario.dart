@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Usuario {
   String _id;
+  String _idCondominio;
   String _nome;
   String _email;
   String _telefone;
@@ -17,6 +18,7 @@ class Usuario {
 
   Usuario.fromDocumentSnapshot(DocumentSnapshot documentSnapshot) {
     this.id = documentSnapshot.id;
+    this.idCondominio = documentSnapshot['idCondominio'];
     this.nome = documentSnapshot['nome'];
     this.email = documentSnapshot['email'];
     this.telefone = documentSnapshot['telefone'];
@@ -37,6 +39,7 @@ class Usuario {
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = {
       "id": this.id,
+      "idCondominio": this.idCondominio,
       "nome": this.nome,
       "email": this.email,
       "telefone": this.telefone,
@@ -53,6 +56,11 @@ class Usuario {
   String get id => _id;
   set id(String value) {
     _id = value;
+  }
+
+  String get idCondominio => _idCondominio;
+  set idCondominio(String value) {
+    _idCondominio = value;
   }
 
   String get nome => _nome;

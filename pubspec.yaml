@@ -58,8 +58,8 @@ dependencies:
   flutter_modular: ^2.0.1
   json_serializable: ^3.5.1
   extended_masked_text: ^1.1.0  
-  cep: ^1.0.4
-  circular_check_box: ^1.0.4
+  cep: ^1.0.4  
+  card_settings: ^1.16.3
   dropdown_date_picker: ^0.1.1+2
   flutter:
     sdk: flutter

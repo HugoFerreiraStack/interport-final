@@ -1,8 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'login_controller.dart';
 
 class LoginPage extends StatefulWidget {
@@ -22,28 +20,10 @@ class _LoginPageState extends ModularState<LoginPage, LoginController> {
 
   String email, senha;
   String _mensagemErro = "";
-  String tipoUsuarioLogado = "";
-  List<String> _tipoUsuario = <String>[
-    "Morador",
-    "Sindico",
-    "Admin",
-    "Funcionario"
-  ];
 
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      _verificarUsuarioLogado();
-    });
     super.initState();
-  }
-
-  _verificarUsuarioLogado() async {
-    FirebaseAuth auth = FirebaseAuth.instance;
-    User user = auth.currentUser;
-    if (user != null) {
-      await Modular.to.pushReplacementNamed("/cad_condominio");
-    }
   }
 
   _validarCampos() async {
@@ -56,17 +36,6 @@ class _LoginPageState extends ModularState<LoginPage, LoginController> {
             .signInWithEmailAndPassword(email: email, password: senha)
             .then((firebaseUser) async {
           await Modular.to.pushReplacementNamed("/admin");
-          //_verificarUsuarioLogado(tipoUsuarioLogado);
-          /*
-          if (tipoUsuarioLogado == tipoUsuarioSelecionado) {
-            if (tipoUsuarioLogado == "Morador") {
-              Modular.to.pushReplacementNamed("/start");
-            } else if (tipoUsuarioLogado == "Admin") {
-              Modular.to.pushReplacementNamed("/admin");
-            } else if (tipoUsuarioLogado == "Sindico") {
-              Modular.to.pushReplacementNamed("start");
-            }
-          }*/
         }).catchError((onError) {
           setState(() {
             _mensagemErro = "Erro ao Fazer Login";
@@ -149,29 +118,6 @@ class _LoginPageState extends ModularState<LoginPage, LoginController> {
                   SizedBox(
                     height: 20,
                   ),
-                  /*
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      DropdownButton(
-                        items: _tipoUsuario
-                            .map((value) => DropdownMenuItem(
-                                  child: Text(
-                                    value,
-                                  ),
-                                  value: value,
-                                ))
-                            .toList(),
-                        onChanged: (_tipoUsuarioSelecionado) {
-                          setState(() {
-                            tipoUsuarioSelecionado = _tipoUsuarioSelecionado;
-                          });
-                        },
-                        value: tipoUsuarioSelecionado,
-                        hint: Text("Selecione o Tipo de Usuario"),
-                      )
-                    ],
-                  ),*/
                   SizedBox(
                     height: 20,
                   ),
